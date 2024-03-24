@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class PostController extends Controller
 {
@@ -21,7 +23,9 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return view('posts.create', [
+            'users' => User::all()
+        ]);
     }
 
     /**
@@ -29,7 +33,24 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request -> validate(
+            [
+                'title' => 'required|min:3',
+                'content' => 'required',
+                'date' => 'required|before_or_equal:now',
+                'user_id' => 'required|integer|exists:users,id'
+            ],
+            [
+                'title.required' => 'Erzsi, nincs cím!',
+                'title.min' => 'Erzsi, adj :min betűt!'
+            ]
+        );
+
+        // itt átment a validáció fixen :)
+        $validated['date'] = \Carbon\Carbon::parse($validated['date']);
+        Post::create($validated);
+        Session::flash('post-created', $validated['title']);
+        return redirect() -> route('posts.index');
     }
 
     /**
