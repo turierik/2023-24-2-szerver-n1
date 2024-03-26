@@ -8,7 +8,9 @@
         </div>
     @endif
 
-    @foreach($posts as $p)
+    @forelse($posts as $p)
         {{ $p -> date }} <a href="{{ route('posts.show', ['post' => $p]) }}">{{ $p -> title }}</a> <b>{{ $p -> user -> name }}</b><br>
-    @endforeach
+    @empty
+        Nincsenek bejegyzések...
+    @endforelse
 @endsection

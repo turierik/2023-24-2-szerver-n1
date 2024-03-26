@@ -16,7 +16,19 @@
                 @yield('content')
             </div>
             <div class="">
-                Sidebar.
+                @auth
+                    Szia, {{ Auth::user() -> name }}!
+                    <form class="mb-4" action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button class="bg-red-700 text-white">Kijelentkezés</button>
+                    </form>
+
+                    <a href="{{ route('posts.create') }}">Új bejegyzés</a>
+                @endauth
+
+                @guest
+                    <a href="{{ route('login') }}">Bejelentkezés</a>
+                @endguest
             </div>
         </div>
     </div>

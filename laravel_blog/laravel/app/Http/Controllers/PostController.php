@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\User;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -23,8 +25,11 @@ class PostController extends Controller
      */
     public function create()
     {
+        $this -> authorize('create', Post::class);
+
         return view('posts.create', [
-            'users' => User::all()
+            'users' => User::all(),
+            'categories' => Tag::all()
         ]);
     }
 
@@ -33,12 +38,16 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
+        $this -> authorize('create', Post::class);
+
         $validated = $request -> validate(
             [
                 'title' => 'required|min:3',
                 'content' => 'required',
                 'date' => 'required|before_or_equal:now',
-                'user_id' => 'required|integer|exists:users,id'
+                // 'user_id' => 'required|integer|exists:users,id',
+                'cats[]' => 'array',
+                'cats.*' => 'distinct|integer|exists:tags,id'
             ],
             [
                 'title.required' => 'Erzsi, nincs cím!',
@@ -47,8 +56,10 @@ class PostController extends Controller
         );
 
         // itt átment a validáció fixen :)
+        $validated['user_id'] = Auth::id();
         $validated['date'] = \Carbon\Carbon::parse($validated['date']);
-        Post::create($validated);
+        $p = Post::create($validated);
+        $p -> tags() -> sync($validated['cats'] ?? []); // n:n
         Session::flash('post-created', $validated['title']);
         return redirect() -> route('posts.index');
     }
@@ -66,7 +77,9 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        //
+        $this -> authorize('update', $post);
+
+        return view('posts.edit', ['post' => $post, 'categories' => Tag::all()]);
     }
 
     /**
@@ -74,7 +87,29 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        //
+        $this -> authorize('update', $post);
+
+        $validated = $request -> validate(
+            [
+                'title' => 'required|min:3',
+                'content' => 'required',
+                'date' => 'required|before_or_equal:now',
+                // 'user_id' => 'required|integer|exists:users,id',
+                'cats[]' => 'array',
+                'cats.*' => 'distinct|integer|exists:tags,id'
+            ],
+            [
+                'title.required' => 'Erzsi, nincs cím!',
+                'title.min' => 'Erzsi, adj :min betűt!'
+            ]
+        );
+
+        // itt átment a validáció fixen :)
+        $validated['date'] = \Carbon\Carbon::parse($validated['date']);
+        $post -> update($validated);
+        $post -> tags() -> sync($validated['cats'] ?? []); // n:n
+        Session::flash('post-updated', $validated['title']);
+        return redirect() -> route('posts.index');
     }
 
     /**
@@ -82,6 +117,8 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $this -> authorize('delete', $post);
+        $post -> delete();
+        return redirect() -> route('posts.index');
     }
 }
