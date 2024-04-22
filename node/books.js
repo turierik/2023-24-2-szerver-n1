@@ -1,4 +1,4 @@
-const { Book } = require('./models')
+const { Book, Human, Store } = require('./models')
 const sequelize = require('sequelize')
 const Op = sequelize.Op
 
@@ -95,5 +95,69 @@ const niceLog = (data) => console.log(JSON.parse(JSON.stringify(data, null, 2)))
             [sequelize.fn('AVG', sequelize.col('pages')), 'avgPages']
         ],
         where: { title: { [Op.like] : '%a%' } }
+    }))
+
+    // 14. add meg az összes könyv adatát szerző adataival együtt
+    // const books = await Book.findAll()
+    // for (const book of books){
+    //     const author = await book.getAuthor()
+    //     book.dataValues.author = author
+    // }
+    // niceLog(books)
+    niceLog(await Book.findAll({
+        include: [ { model: Human, as: 'author' } ]
+    }))
+
+    // 15. add meg az összes könyv adatát a boltok adataival együtt
+    niceLog(await Book.findAll({
+        include: [ { model: Store }]
+    }))
+
+    // 15/b. add meg az összes könyv adatát a boltok adataival együtt, kapcsolótábla adatai nélkül
+    niceLog(await Book.findAll({
+        include: [ { model: Store, through: { attributes: [] } }]
+    }))
+    
+    // 16. add meg az összes könyv adatát a boltok adataival (kapcs. nélkül) és a szerző adataival
+    niceLog(await Book.findAll({
+        include: [
+            {model: Human, as: 'author'},
+            {model: Store, through: { attributes: [] } }]
+    }))
+
+    // 17. add meg a 200 oldalnál hosszabb könyvek címét és oldalszámát, és a szerző nevét és szül.dátumát
+    niceLog(await Book.findAll({
+        where: { pages: { [Op.gt] : 200 }},
+        attributes: ['title', 'pages'],
+        include: [ { model: Human, as: 'author', attributes: ['name', 'birthdate']} ]
+    }))
+
+    // 18. hány könyve van az egyes szerzőknek? (pl. szerző neve, könyvek száma)
+    niceLog(await Human.findAll({
+        attributes: ['name', 
+            [sequelize.fn('COUNT', sequelize.col('books.id')), 'bookCount' ]
+        ],
+        include: [ { model: Book, as: 'books', attributes: [] }],
+        group: ['human.id'],
+    }))
+
+    // 19. átlagosan hány oldalasak az egyes szerzők könyvei, növ. sorrendben? (pl. szerző neve, átlag oldalszám)
+    niceLog(await Human.findAll({
+        attributes: ['name', 
+            [sequelize.fn('AVG', sequelize.col('books.pages')), 'avgPages' ]
+        ],
+        include: [ { model: Book, as: 'books', attributes: [] }],
+        group: ['human.id'],
+        order: [['avgPages', 'ASC' ]]
+    }))
+
+    // 20. add meg azoknak a szerzőknek a nevét, akiknek 0 könyve van!
+    niceLog(await Human.findAll({
+        attributes: ['name', 
+            [sequelize.fn('COUNT', sequelize.col('books.id')), 'bookCount' ]
+        ],
+        include: [ { model: Book, as: 'books', attributes: [] }],
+        group: ['human.id'],
+        having: { bookCount: 0 }
     }))
 })()
