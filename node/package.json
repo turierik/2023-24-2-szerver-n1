@@ -12,8 +12,10 @@
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
     "@fastify/jwt": "^8.0.0",
+    "@graphql-tools/schema": "^10.0.3",
     "fastify": "^4.26.2",
     "graphql": "^16.8.1",
+    "graphql-scalars": "^1.23.0",
     "mercurius": "^14.1.0",
     "nodemon": "^3.1.0",
     "sequelize": "^6.37.3",

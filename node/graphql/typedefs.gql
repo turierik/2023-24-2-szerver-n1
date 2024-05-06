@@ -1,0 +1,42 @@
+type Query {
+    add(x: Int, y: Int): Int
+    books : [Book]
+    bookById(id: ID!) : Book
+    booksByAuthor(name: String!): [Book]
+    stats : Stats
+}
+
+type Book {
+    id: ID!
+    title: String!
+    pages: Int!
+    hardcover: Boolean!
+    authorId: ID!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    author: Human
+}
+
+type Human {
+    id: ID!
+    name: String!
+    birthdate: DateTime!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+}
+
+input CreateBookInput {
+    title: String!
+    pages: Int!
+    hardcover: Boolean!
+    authorId: ID!
+}
+
+type Mutation {
+    createBook(input: CreateBookInput) : Book 
+}
+
+type Stats {
+    bookCount: Int!
+    avgPages: Float
+}

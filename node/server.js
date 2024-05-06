@@ -3,6 +3,10 @@ const fastify = require("fastify")({
 });
 const { Book, Human } = require('./models');
 
+const registerGraphQL = require('./graphql');
+
+registerGraphQL(fastify);
+
 // Declare a route
 fastify.get("/", (request, reply) => {
     reply.send({ hello: "world" });
