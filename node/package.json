@@ -4,12 +4,18 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "db": "npx rimraf database.sqlite && npx sequelize db:migrate && npx sequelize db:seed:all"
+    "db": "npx rimraf database.sqlite && npx sequelize db:migrate && npx sequelize db:seed:all",
+    "dev": "npx nodemon server.js -e .js,.mjs,.json,.gql"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
+    "@fastify/jwt": "^8.0.0",
+    "fastify": "^4.26.2",
+    "graphql": "^16.8.1",
+    "mercurius": "^14.1.0",
+    "nodemon": "^3.1.0",
     "sequelize": "^6.37.3",
     "sequelize-cli": "^6.6.2",
     "sqlite3": "^5.1.7"
