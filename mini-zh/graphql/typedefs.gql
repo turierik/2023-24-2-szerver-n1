@@ -1,0 +1,29 @@
+type Query {
+    # Elemi példa:
+    helloWorld: String
+
+    # Példa paraméterezésre:
+    helloName(name: String!): String
+
+    # TODO: Készítsd el a schema hiányzó részeit
+    animals: [Animal]!
+}
+
+type Animal {
+    id: ID!
+    name: String!
+    age: Int
+    mammal: Boolean!
+    chip: String!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    owner: Human!
+}
+
+type Human {
+    id: ID!
+    name: String!
+    contact: String!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+}
